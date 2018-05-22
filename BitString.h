@@ -53,7 +53,7 @@ public:
 
 	std::string getBytes(size_t amount);
 	std::string getBytes() {
-		return getBytes(bits.size() + 1);
+		return getBytes(bits.size() / 8 + 1);
 	}
 
 	static BitString toBitString(std::string str);
