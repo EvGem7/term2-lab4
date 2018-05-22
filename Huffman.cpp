@@ -167,7 +167,7 @@ void Huffman::decode() {
 			leavesNumber++;
 			do {
 				current = current->parent;
-			} while (current != nullptr && current->right);
+			} while (current != nullptr && current->right != nullptr);
 			if (current != nullptr) {
 				current->right = new HuffmanNode(current);
 				current = current->right;
