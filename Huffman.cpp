@@ -149,7 +149,7 @@ void Huffman::decode() {
 	unsigned char byte;
 	fin.read((char*)&byte, 1);
 	buffer.append(byte);
-	size_t alphabetOffset = 1;
+	size_t alphabetOffset;
 	size_t leavesNumber   = 0;
 	HuffmanNode* current  = root;
 	for (int i = 0; current != nullptr; alphabetOffset = ++i) {
