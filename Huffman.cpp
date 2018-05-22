@@ -150,7 +150,7 @@ void Huffman::decode() {
 	fin.read((char*)&byte, 1);
 	buffer.append(byte);
 	size_t alphabetOffset;
-	size_t leavesNumber   = 0;
+	size_t leavesNumber = 0;
 	HuffmanNode* current  = root;
 	for (int i = 0; current != nullptr; alphabetOffset = ++i) {
 		if (i >= 8) {
