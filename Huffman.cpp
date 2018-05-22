@@ -111,12 +111,8 @@ void Huffman::code() {
 	BitString treeStructure;
 	BitString codingTable[BYTE_RANGE];
 	string alphabet;
-	if (root->left != nullptr && right != nullptr) {
-		deepFirstSearch(root, treeStructure, alphabet, codingTable);
-	}
-	else {
-		treeStructure.addBit(UP);
-		alphabet += root->byte;
+	deepFirstSearch(root, treeStructure, alphabet, codingTable);
+	if (root->left == nullptr && right == nullptr) {
 		codingTable[root->byte].addBit(LEFT); //assume the root as left son
 	}
 	
