@@ -53,9 +53,19 @@ private:
 
 	void deepFirstSearch(HuffmanNode* node, BitString& treeStructure, std::string& alphabet, BitString* codingTable, BitString& currentCode);
 
-	void checkFile() {
+	void assignLeaves(HuffmanNode* node, std::string& alphabet);
+
+	//char* findLeaf(HuffmanNode* node, BitString& code);
+
+	void checkFileOpening() {
 		if (!fin.is_open() || !fout.is_open()) {
-			throw HuffmanException("some file is not opened");
+			throw new HuffmanException("some file cannot be opened");
+		}
+	}
+
+	void checkFileDecoding() {
+		if (!fin.good()) {
+			throw new HuffmanException("file is corrupted");
 		}
 	}
 

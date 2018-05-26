@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-class Exception {
+class Exception {	//проверить как работает класс-исключение
 private:
 	std::string message;
 	Exception* exception;
@@ -24,7 +24,18 @@ public:
 		this->exception = exception;
 	}
 
+	~Exception() {
+		if (exception != nullptr) {
+			delete exception;
+		}
+	}
+
 	std::string getMessage() {
-		return exception->getMessage() + message;
+		if (exception != nullptr) {
+			return exception->getMessage() + message;
+		}
+		else {
+			return message;
+		}
 	}
 };

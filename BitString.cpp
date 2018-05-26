@@ -27,7 +27,7 @@ BitString BitString::toBitString(unsigned char byte) {
 	return result;
 }
 
-BitString BitString::toBitString(std::string str) {
+BitString BitString::toBitString(std::string& str) {
 	BitString result;
 	for (char byte : str) {
 		result.append(toBitString(byte));

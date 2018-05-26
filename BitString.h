@@ -16,7 +16,7 @@ private:
 	std::string bits;
 
 public:
-	class Iterator {
+	/*class Iterator {
 	private:
 		size_t pos;
 		BitString& bitString;
@@ -43,32 +43,42 @@ public:
 			bStr.bits = bitString.bits.substr(pos, bitString.bits.size() - pos);
 			return bStr.getBytes();
 		}
-	};
+	};*/
+
+	static BitString toBitString(std::string& str);
+
+	static BitString toBitString(unsigned char byte);
 
 	BitString() {}
+
+	BitString(unsigned char byte) {
+		append(byte);
+	}
 
 	BitString(std::string str) {
 		append(str);
 	}
 
 	std::string getBytes(size_t amount);
+
 	std::string getBytes() {
 		return getBytes(bits.size() / 8 + 1);
 	}
-
-	static BitString toBitString(std::string str);
-	static BitString toBitString(unsigned char byte);
 
 	bool operator [](int i) {
 		return bits[i] == '1';
 	}
 
-	size_t getBitsCount() {
+	size_t size() {
 		return bits.size();
 	}
 
 	void clear() {
-		bits = "";
+		bits.clear();
+	}
+
+	void erase(size_t start, size_t amount) {
+		bits.erase(start, amount);
 	}
 
 	void addBit(bool bit) {
@@ -79,16 +89,23 @@ public:
 			bits += "0";
 		}
 	}
+
 	void append(BitString& attachable) {
 		bits += attachable.bits;
 	}
 
-	void append(std::string str) {
+	void append(std::string& str) {
 		append(toBitString(str));
 	}
 
 	void append(unsigned char ch) {
 		append(toBitString(ch));
+	}
+
+	BitString subBitString(size_t start, size_t amount) {
+		BitString result;
+		result.bits = bits.substr(start, amount);
+		return result;
 	}
 };
 
