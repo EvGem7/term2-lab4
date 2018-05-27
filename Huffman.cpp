@@ -1,3 +1,4 @@
+#define _CRT_DISABLE_PERFCRIT_LOCKS
 #include "Huffman.h"
 #include "PriorityQueue.h"
 #include <iostream>
@@ -17,9 +18,10 @@ void Huffman::setSourceFile(string sourceFile) {
 		fin.close();
 	}
 	fin.open(sourceFile, ios::binary | ios::in);
-	if (!fin.is_open()) {
+	if (!fin) {
 		throw new HuffmanException("cannot open source file");
 	}
+	//fin.tie(nullptr);
 }
 
 void Huffman::setDestinationFile(string destinationFile) {
@@ -27,9 +29,10 @@ void Huffman::setDestinationFile(string destinationFile) {
 		fout.close();
 	}
 	fout.open(destinationFile, ios::binary | ios::out);
-	if (!fout.is_open()) {
+	if (!fout) {
 		throw new HuffmanException("cannot open destination file");
 	}
+	//fout.tie(nullptr);
 }
 
 void Huffman::code(std::string sourceFile, std::string destinationFile) {
@@ -153,16 +156,16 @@ void Huffman::code() {
 		fout << buffer.getBytes();
 	}
 
-	root->deleteSubtree();
 	fin.close();
 	fout.close();
+	root->deleteSubtree();
 }
 
 void Huffman::decode() {
 	checkFileOpening();
 
 	fin.seekg(0, fin.end);
-	const size_t FILE_SIZE = fin.tellg();
+	const std::streampos FILE_SIZE = fin.tellg();
 	fin.seekg(0, fin.beg);
 
 	BitString buffer;
@@ -179,8 +182,8 @@ void Huffman::decode() {
 
 	size_t alphabetOffset;
 	size_t leavesNumber = 0;
-	HuffmanNode* current  = root;
-	for (auto i = 0; current != nullptr; alphabetOffset = ++i) {
+	HuffmanNode* currentNode  = root;
+	for (auto i = 0; currentNode != nullptr; alphabetOffset = ++i) {
 		if (i >= 8) {
 			i = 0;
 			fin.read((char*)&byte, 1);
@@ -190,17 +193,17 @@ void Huffman::decode() {
 			buffer.append(byte);
 		}
 		if (buffer[i] == DOWN) {
-			current->left = new HuffmanNode(current);
-			current = current->left;
+			currentNode->left = new HuffmanNode(currentNode);
+			currentNode = currentNode->left;
 		}
 		else {
 			leavesNumber++;
 			do {
-				current = current->parent;
-			} while (current != nullptr && current->right != nullptr);
-			if (current != nullptr) {
-				current->right = new HuffmanNode(current);
-				current = current->right;
+				currentNode = currentNode->parent;
+			} while (currentNode != nullptr && currentNode->right != nullptr);
+			if (currentNode != nullptr) {
+				currentNode->right = new HuffmanNode(currentNode);
+				currentNode = currentNode->right;
 			}
 		}
 	}
@@ -231,41 +234,50 @@ void Huffman::decode() {
 
 
 
-
-	while (!fin.eof()) {
-		bool isDecoded = false;
-		HuffmanNode* currentNode = root;	//продумать для одноэлементного дерева
-		size_t currentBit;
-		for (currentBit = 0; 
-			currentBit < (((size_t)fin.tellg() < FILE_SIZE - 1)? buffer.size() : buffer.size() - lastUnreadableBitsAmount);
-			currentBit++) {
-			//if (root->left == nullptr && root->right == nullptr) {	//for tree with one leaf (at root)
-
-			//}
-			if (buffer[currentBit] == LEFT && currentNode->left) {
+	currentNode = root;
+	if (buffer.size() == 0) {
+		fin.read((char*)&byte, 1);
+		checkFileDecoding();
+		if (fin.good()) {
+			buffer.append(byte);
+		}
+	}
+	for (size_t currentBit = 0; (fin.tellg() == FILE_SIZE) ?
+		currentBit < buffer.size() - lastUnreadableBitsAmount :
+		currentBit < buffer.size();
+		currentBit++) {
+		if (buffer[currentBit] == LEFT) {
+			if (currentNode->left) {
 				currentNode = currentNode->left;
 			}
-			else if (buffer[currentBit] == RIGHT && currentNode->right) {
+			else if (root->left != nullptr && root->right != nullptr) {
+				throw new HuffmanException("File is corrupted");
+			}
+		}
+		else {
+			if (currentNode->right) {
 				currentNode = currentNode->right;
 			}
-			if (currentNode->left == nullptr && currentNode->right == nullptr) {
-				buffer.erase(0, currentBit + 1);
-				fout << currentNode->byte;
-				isDecoded = true;
-				break;
+			else {
+				throw new HuffmanException("File is corrupted");
 			}
-				//очистить буфер. записать в файл расшифрованный символ. 
 		}
-		if (!fin.eof() && !isDecoded) {
+		if (currentNode->left == nullptr && currentNode->right == nullptr) {
+			fout << currentNode->byte;
+			currentNode = root;
+		}
+		if (currentBit == buffer.size() - 1) {
 			fin.read((char*)&byte, 1);
 			if (fin.good()) {
-				//++currentByte;
+				buffer.clear();
 				buffer.append(byte);
+				currentBit = -1;
 			}
 		}
-		//сосчитать следующий байт
 	}
-	
+
+	fin.close();
+	fout.close();
 	root->deleteSubtree();
 }
 
