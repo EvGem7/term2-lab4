@@ -5,8 +5,8 @@
 
 void efficientCount(const time_t startTime, char* source, char* destination) {
 	double delta = (double)(clock() - startTime) / CLOCKS_PER_SEC;
-	std::fstream sourceFile(source);
-	std::fstream destinationFile(destination);
+	std::fstream sourceFile(source, std::ios::binary | std::ios::in);
+	std::fstream destinationFile(destination, std::ios::binary | std::ios::in);
 	if (!sourceFile.is_open() || !destinationFile.is_open()) {
 		throw new Exception("while efficient counting some file couldn't be open");
 	}
@@ -27,6 +27,7 @@ int main(int argc, char** argv) {
 	if (argc != 4) {
 		std::cout << "Usage: %programName% %key% %sourceFile% %destinationFile%" << std::endl;
 		std::cout << "key: code, decode" << std::endl;
+		return -1;
 	}
 	Huffman huffman;
 	try {
@@ -39,14 +40,14 @@ int main(int argc, char** argv) {
 			break;
 		default:
 			std::cout << "Wrong key. You can use only code and decode keys." << std::endl;
-			return -1;
+			return -2;
 		}
 		efficientCount(startTime, argv[2], argv[3]);
 	}
 	catch (Exception* e) {
 		std::cout << e->getMessage();
 		delete e;
-		return -2;
+		return -3;
 	}
 	return 0;
 }
