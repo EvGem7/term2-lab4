@@ -1,23 +1,29 @@
 #include "Huffman.h"
 #include <iostream>
 #include <ctime>
-//#include <cmath>
 
 void efficientCount(const time_t startTime, char* source, char* destination) {
 	double delta = (double)(clock() - startTime) / CLOCKS_PER_SEC;
+
 	std::fstream sourceFile(source, std::ios::binary | std::ios::in);
 	std::fstream destinationFile(destination, std::ios::binary | std::ios::in);
 	if (!sourceFile.is_open() || !destinationFile.is_open()) {
 		throw new Exception("while efficient counting some file couldn't be open");
 	}
+
 	sourceFile.seekg(0, sourceFile.end);
 	destinationFile.seekg(0, destinationFile.end);
-	int sourceSize = sourceFile.tellg();
-	int destinationSize = destinationFile.tellg();
-	double efficient = abs((double)(sourceSize - destinationSize)) / ((sourceSize > destinationSize)? sourceSize : destinationSize);
-	double speed = (double)destinationSize / delta;
+
+	auto sourceSize = (int)sourceFile.tellg();
+	auto destinationSize = (int)destinationFile.tellg();
+	auto uncompressedSize = (sourceSize > destinationSize) ? sourceSize : destinationSize;
+
+	double efficient = abs((double)(sourceSize - destinationSize)) / uncompressedSize;
+	double speed = (double)uncompressedSize / delta;
 	std::cout << "Efficient: " << 100 * efficient << "%" << std::endl;
 	std::cout << "Speed: " << speed / 1024 << " kilobytes/sec" << std::endl;
+	std::cout << "Elapsed time: " << delta << " sec" << std::endl;
+
 	sourceFile.close();
 	destinationFile.close();
 }

@@ -2,7 +2,7 @@
 #include <string>
 #include "Exception.h"
 
-class BitStringException : Exception {
+class BitStringException : public Exception {
 public:
 	BitStringException(std::string message) : Exception(message) {}
 
@@ -16,39 +16,6 @@ private:
 	std::string bits;
 
 public:
-	/*class Iterator {
-	private:
-		size_t pos;
-		BitString& bitString;
-	public:
-		Iterator(BitString& bitString) : bitString(bitString) {
-			pos = 0;
-		}
-
-		void move(int delta) {
-			if (pos + delta < 0 || pos + delta >= bitString.bits.size()) {
-				throw BitStringException("out of array bound");
-			}
-			pos += delta;
-		}
-
-		std::string getBytes(size_t amount) {
-			BitString bStr;
-			bStr.bits = bitString.bits.substr(pos, bitString.bits.size() - pos);
-			return bStr.getBytes(amount);
-		}
-
-		std::string getBytes() {
-			BitString bStr;
-			bStr.bits = bitString.bits.substr(pos, bitString.bits.size() - pos);
-			return bStr.getBytes();
-		}
-	};*/
-
-	static BitString toBitString(std::string& str);
-
-	static BitString toBitString(unsigned char byte);
-
 	BitString() {}
 
 	BitString(unsigned char byte) {
@@ -59,14 +26,13 @@ public:
 		append(str);
 	}
 
+	static BitString toBitString(std::string& str);
+	static BitString toBitString(unsigned char byte);
+	void addBit(bool bit);
 	std::string getBytes(size_t amount);
 
 	std::string getBytes() {
 		return getBytes(bits.size() / 8 + 1);
-	}
-
-	bool operator [](int i) {
-		return bits[i] == '1';
 	}
 
 	size_t size() {
@@ -79,15 +45,6 @@ public:
 
 	void erase(size_t start, size_t amount) {
 		bits.erase(start, amount);
-	}
-
-	void addBit(bool bit) {
-		if (bit) {
-			bits += "1";
-		}
-		else {
-			bits += "0";
-		}
 	}
 
 	void append(BitString& attachable) {
@@ -106,6 +63,10 @@ public:
 		BitString result;
 		result.bits = bits.substr(start, amount);
 		return result;
+	}
+
+	bool operator [](int i) {
+		return bits[i] == '1';
 	}
 };
 

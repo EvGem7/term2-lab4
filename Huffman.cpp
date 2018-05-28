@@ -1,4 +1,3 @@
-#define _CRT_DISABLE_PERFCRIT_LOCKS
 #include "Huffman.h"
 #include "PriorityQueue.h"
 #include <iostream>
@@ -21,7 +20,6 @@ void Huffman::setSourceFile(string sourceFile) {
 	if (!fin) {
 		throw new HuffmanException("cannot open source file");
 	}
-	//fin.tie(nullptr);
 }
 
 void Huffman::setDestinationFile(string destinationFile) {
@@ -32,7 +30,6 @@ void Huffman::setDestinationFile(string destinationFile) {
 	if (!fout) {
 		throw new HuffmanException("cannot open destination file");
 	}
-	//fout.tie(nullptr);
 }
 
 void Huffman::code(std::string sourceFile, std::string destinationFile) {
@@ -85,7 +82,7 @@ void Huffman::deepFirstSearch(HuffmanNode* node, BitString& treeStructure, std::
 void Huffman::code() {
 	checkFileOpening();
 	fin.seekg(0, fin.end);
-	const size_t FILE_SIZE = fin.tellg();
+	const size_t FILE_SIZE = (size_t)fin.tellg();
 	fin.seekg(0, fin.beg);
 	const short BYTE_RANGE = 256;
 	size_t freqs[BYTE_RANGE] = {};
@@ -165,20 +162,16 @@ void Huffman::decode() {
 	checkFileOpening();
 
 	fin.seekg(0, fin.end);
-	const std::streampos FILE_SIZE = fin.tellg();
+	const auto FILE_SIZE = fin.tellg();
 	fin.seekg(0, fin.beg);
 
 	BitString buffer;
-	//size_t currentByte = 0;
 	HuffmanNode* root = new HuffmanNode();
 	unsigned char byte;
 
-	//переделать в одну функцию(макрос)
 	fin.read((char*)&byte, 1);	
-	//++currentByte;
 	checkFileDecoding();
 	buffer.append(byte);
-	///////////////////////////////////
 
 	size_t alphabetOffset;
 	size_t leavesNumber = 0;
@@ -187,7 +180,6 @@ void Huffman::decode() {
 		if (i >= 8) {
 			i = 0;
 			fin.read((char*)&byte, 1);
-			//++currentByte;
 			checkFileDecoding();
 			buffer.clear();
 			buffer.append(byte);
@@ -208,19 +200,17 @@ void Huffman::decode() {
 		}
 	}
 
-	for (auto i = 0; i < leavesNumber; i++) {
+	for (auto i = 0U; i < leavesNumber; i++) {
 		fin.read((char*)&byte, 1);
-		//++currentByte;
 		checkFileDecoding();
 		buffer.append(byte);
 	}
 	string alphabet = buffer.subBitString(alphabetOffset, 8 * leavesNumber).getBytes();
-	assignLeaves(root, alphabet);
 	buffer.erase(0, alphabetOffset + 8 * leavesNumber);
+	assignLeaves(root, alphabet);
 
 	if (buffer.size() < LAST_BITS_INFO_SIZE) {
 		fin.read((char*)&byte, 1);
-		//++currentByte;
 		checkFileDecoding();
 		buffer.append(byte);
 	}
@@ -232,17 +222,13 @@ void Huffman::decode() {
 	}
 	buffer.erase(0, LAST_BITS_INFO_SIZE);
 
-
-
 	currentNode = root;
 	if (buffer.size() == 0) {
 		fin.read((char*)&byte, 1);
 		checkFileDecoding();
-		if (fin.good()) {
-			buffer.append(byte);
-		}
+		buffer.append(byte);
 	}
-	for (size_t currentBit = 0; (fin.tellg() == FILE_SIZE) ?
+	for (auto currentBit = 0U; (fin.tellg() == FILE_SIZE) ?
 		currentBit < buffer.size() - lastUnreadableBitsAmount :
 		currentBit < buffer.size();
 		currentBit++) {
@@ -271,7 +257,7 @@ void Huffman::decode() {
 			if (fin.good()) {
 				buffer.clear();
 				buffer.append(byte);
-				currentBit = -1;
+				currentBit = -1;	//because of increment at next iteration. that, it's unsigned, doesn't matter
 			}
 		}
 	}
@@ -284,7 +270,6 @@ void Huffman::decode() {
 void Huffman::assignLeaves(HuffmanNode* node, std::string& alphabet) {
 	if (node->left == nullptr && node->right == nullptr) {
 		node->byte = alphabet[0];
-		//alphabet = alphabet.substr(1, alphabet.size() - 1);
 		alphabet.erase(alphabet.begin());
 		return;
 	}
@@ -295,7 +280,3 @@ void Huffman::assignLeaves(HuffmanNode* node, std::string& alphabet) {
 		assignLeaves(node->right, alphabet);
 	}
 }
-
-//char* Huffman::findLeaf(HuffmanNode* node, BitString& code) {
-//
-//}

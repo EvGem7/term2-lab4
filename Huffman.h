@@ -43,19 +43,27 @@ private:
 			deleteSubtree(this);
 		}
 
-		friend bool operator < (const HuffmanNode& node1, const HuffmanNode& node2) { ///////////////??
-			return node1.freq > node2.freq;	///////////////??
+		friend bool operator < (const HuffmanNode& node1, const HuffmanNode& node2) {
+			return node1.freq > node2.freq;	// there's > because in priority queue use descending sort
 		}
 	};
 
 	std::ifstream fin;
 	std::ofstream fout;
 
+	/*
+	this function is using while coding.
+	it codes structure of tree to save it to archive,
+	saves alphabet and coding table for every used byte.
+	alphabet is being making up in order of deep-first-search.
+	*/
 	void deepFirstSearch(HuffmanNode* node, BitString& treeStructure, std::string& alphabet, BitString* codingTable, BitString& currentCode);
 
+	/*
+	this function is using while decoding.
+	it assigns bytes to the corresponding leaves using the alphabet.
+	*/
 	void assignLeaves(HuffmanNode* node, std::string& alphabet);
-
-	//char* findLeaf(HuffmanNode* node, BitString& code);
 
 	void checkFileOpening() {
 		if (!fin.is_open() || !fout.is_open()) {
