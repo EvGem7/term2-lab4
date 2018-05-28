@@ -63,11 +63,11 @@ void Huffman::HuffmanNode::deleteSubtree(HuffmanNode* node) {
 void Huffman::deepFirstSearch(HuffmanNode* node, BitString& treeStructure, std::string& alphabet, BitString* codingTable, BitString& currentCode = BitString()) {
 	if (node->left) {
 		treeStructure.addBit(DOWN);
-		BitString left = currentCode;
+		auto left = currentCode;
 		left.addBit(LEFT);
 		deepFirstSearch(node->left, treeStructure, alphabet, codingTable, left);
 		if (node->right) {
-			BitString right = currentCode;
+			auto right = currentCode;
 			right.addBit(RIGHT);
 			deepFirstSearch(node->right, treeStructure, alphabet, codingTable, right);
 		}
@@ -82,7 +82,7 @@ void Huffman::deepFirstSearch(HuffmanNode* node, BitString& treeStructure, std::
 void Huffman::code() {
 	checkFileOpening();
 	fin.seekg(0, fin.end);
-	const size_t FILE_SIZE = (size_t)fin.tellg();
+	const auto FILE_SIZE = (size_t)fin.tellg();
 	fin.seekg(0, fin.beg);
 	const short BYTE_RANGE = 256;
 	size_t freqs[BYTE_RANGE] = {};
@@ -95,9 +95,9 @@ void Huffman::code() {
 	}
 
 	PriorityQueue<HuffmanNode> queue;
-	for (auto i = 0; i < BYTE_RANGE; i++) {
+	for (auto i = 0U; i < BYTE_RANGE; i++) {
 		if (freqs[i] > 0) {
-			queue.push(HuffmanNode((unsigned char)i, freqs[i]));
+			queue.push(HuffmanNode(i, freqs[i]));
 		}
 	}
 	while (queue.size() > 1) {	//till coding we needn't use parent pointer
@@ -109,7 +109,7 @@ void Huffman::code() {
 		newNode.freq   = newNode.left->freq + newNode.right->freq;
 		queue.push(newNode);
 	}
-	HuffmanNode *root = new HuffmanNode();
+	auto root = new HuffmanNode();
 	*root = queue.poll();
 	//we've built Huffman's tree 
 
@@ -121,8 +121,8 @@ void Huffman::code() {
 		codingTable[root->byte].addBit(LEFT); //assume the root as left son
 	}
 
-	size_t compressedSize = 0;	//in bits
-	for (auto i = 0; i < BYTE_RANGE; i++) {
+	auto compressedSize = 0U;	//in bits
+	for (auto i = 0U; i < BYTE_RANGE; i++) {
 		compressedSize += freqs[i] * codingTable[i].size();
 	}
 	compressedSize += treeStructure.size() + 8 * alphabet.size() + LAST_BITS_INFO_SIZE;
@@ -166,7 +166,7 @@ void Huffman::decode() {
 	fin.seekg(0, fin.beg);
 
 	BitString buffer;
-	HuffmanNode* root = new HuffmanNode();
+	auto root = new HuffmanNode();
 	unsigned char byte;
 
 	fin.read((char*)&byte, 1);	
@@ -175,8 +175,8 @@ void Huffman::decode() {
 
 	size_t alphabetOffset;
 	size_t leavesNumber = 0;
-	HuffmanNode* currentNode  = root;
-	for (auto i = 0; currentNode != nullptr; alphabetOffset = ++i) {
+	auto currentNode = root;
+	for (auto i = 0U; currentNode != nullptr; alphabetOffset = ++i) {
 		if (i >= 8) {
 			i = 0;
 			fin.read((char*)&byte, 1);
@@ -205,7 +205,7 @@ void Huffman::decode() {
 		checkFileDecoding();
 		buffer.append(byte);
 	}
-	string alphabet = buffer.subBitString(alphabetOffset, 8 * leavesNumber).getBytes();
+	auto alphabet = buffer.subBitString(alphabetOffset, 8 * leavesNumber).getBytes();
 	buffer.erase(0, alphabetOffset + 8 * leavesNumber);
 	assignLeaves(root, alphabet);
 

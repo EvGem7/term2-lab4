@@ -3,7 +3,7 @@
 #include <ctime>
 
 void efficientCount(const time_t startTime, char* source, char* destination) {
-	double delta = (double)(clock() - startTime) / CLOCKS_PER_SEC;
+	auto delta = (double)(clock() - startTime) / CLOCKS_PER_SEC;
 
 	std::fstream sourceFile(source, std::ios::binary | std::ios::in);
 	std::fstream destinationFile(destination, std::ios::binary | std::ios::in);
@@ -18,8 +18,8 @@ void efficientCount(const time_t startTime, char* source, char* destination) {
 	auto destinationSize = (int)destinationFile.tellg();
 	auto uncompressedSize = (sourceSize > destinationSize) ? sourceSize : destinationSize;
 
-	double efficient = abs((double)(sourceSize - destinationSize)) / uncompressedSize;
-	double speed = (double)uncompressedSize / delta;
+	auto efficient = abs((double)(sourceSize - destinationSize)) / uncompressedSize;
+	auto speed = (double)uncompressedSize / delta;
 	std::cout << "Efficient: " << 100 * efficient << "%" << std::endl;
 	std::cout << "Speed: " << speed / 1024 << " kilobytes/sec" << std::endl;
 	std::cout << "Elapsed time: " << delta << " sec" << std::endl;
@@ -29,7 +29,7 @@ void efficientCount(const time_t startTime, char* source, char* destination) {
 }
 
 int main(int argc, char** argv) {
-	const clock_t startTime = clock();
+	const auto startTime = clock();
 	if (argc != 4) {
 		std::cout << "Usage: %programName% %key% %sourceFile% %destinationFile%" << std::endl;
 		std::cout << "key: code, decode" << std::endl;
